@@ -1,5 +1,5 @@
 import json
-from MPA_API import MPA_API
+from api.MPA_API import MPA_API
 
 class MPA_Alarms(MPA_API):
      

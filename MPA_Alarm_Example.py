@@ -1,6 +1,6 @@
-from MPA_Alarms import MPA_Alarms
+from api.MPA_Alarms import MPA_Alarms
 from config import Config
-from API_Config import API_Config
+from api.API_Config import API_Config
 import logging
 import panel as pn
 from panel.theme import Bootstrap

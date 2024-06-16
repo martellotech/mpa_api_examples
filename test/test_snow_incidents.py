@@ -1,7 +1,7 @@
 import unittest
 import logging
-from SNOW_API import SNOW_API
-from API_Config import API_Config
+from api.SNOW_API import SNOW_API
+from api.API_Config import API_Config
 logger = logging.getLogger("mpa_alarms")
 
 class Test_SNOW_incidents(unittest.TestCase):  

@@ -1,13 +1,13 @@
 import unittest
 import logging
-import MPA_Alarms
-from API_Config import API_Config
+from api.MPA_Alarms import MPA_Alarms
+from api.API_Config import API_Config
 
 logger = logging.getLogger("mpa_alarms")
 
 class Test_mpa_alarms(unittest.TestCase):  
     def setUp(self):
-        self.mpa = MPA_Alarms.MPA_Alarms(API_Config.MPA_HOST, API_Config.MPA_UID, API_Config.MPA_PW)
+        self.mpa = MPA_Alarms(API_Config.MPA_HOST, API_Config.MPA_UID, API_Config.MPA_PW)
 
     def test_get_userGuid_before_getMe(self):
         guid = self.mpa.userGuid()

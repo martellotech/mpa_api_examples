@@ -25,7 +25,7 @@ class SNOW_API:
         self.headers = { 'Authorization': self._basic_auth(uid, pw) }
 
 if __name__ == "__main__":
-    from config import API_config
-    snow = SNOW_API(API_config.SNOW_HOST, API_config.SNOW_UID, API_config.SNOW_PW)
+    from api.API_Config import API_Config
+    snow = SNOW_API(API_Config.SNOW_HOST, API_Config.SNOW_UID, API_Config.SNOW_PW)
     resp = snow.createIncident("TESTING SNOW API", "Comment [code]<a href=\"https://google.com\" target=\"_blank\">Google</a>[/code]")
     print(f"RESPONSE:{resp}")

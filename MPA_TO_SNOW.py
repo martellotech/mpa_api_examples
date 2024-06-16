@@ -1,10 +1,10 @@
-from MPA_Alarms import MPA_Alarms
-from SNOW_API import SNOW_API
+from api.MPA_Alarms import MPA_Alarms
+from api.SNOW_API import SNOW_API
 import time
 import json
 import logging
-from API_config import API_config 
-api_config = API_config()
+from api.API_Config import API_Config 
+api_config = API_Config()
 logging.basicConfig(format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.INFO)

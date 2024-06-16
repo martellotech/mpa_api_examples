@@ -47,7 +47,7 @@ class MPA_API:
         self.headers = { 'Authorization': self._basic_auth(uid, pw) }  
     
 if __name__ == "__main__":
-    from API_Config import API_Config
+    from api.API_Config import API_Config
     import json
     mpa = MPA_API(API_Config.MPA_HOST, API_Config.MPA_UID, API_Config.MPA_PW)
     me = mpa.getMe()

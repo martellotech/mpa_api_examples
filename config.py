@@ -1,5 +1,5 @@
 import panel as pn # ignore stub
-from API_Config import API_Config
+from api.API_Config import API_Config
 
 class Config(pn.Column):
     def __init__(self, **params):

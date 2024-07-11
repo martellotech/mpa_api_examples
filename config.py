@@ -3,7 +3,7 @@ from api.API_Config import API_Config
 
 class Config(pn.Column):
     def __init__(self, **params):
-        self.api = API_Config()
+        self.api = API_Config
         super(Config, self).__init__(**params)  
 
     def view(self):

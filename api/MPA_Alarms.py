@@ -44,10 +44,6 @@ class MPA_Alarms(MPA_API):
             "URL": url,
             "number": number
             }
-        },
-        "labelDiff": {
-            "unassignedLabels": [],
-            "assignedLabels": []
         }
         })
         headers = {
@@ -55,7 +51,7 @@ class MPA_Alarms(MPA_API):
         }
         headers.update(self.headers)
         href = href.replace("https://"+self.host,"")
-        href = href+f"/updateTicketAndLabels/?user={self.me['GUID']}"
+        href = href+f"/updateTicket/?user={self.me['GUID']}"
         self.conn.request("PUT", href, payload, headers)
         print(f"Updating Ticket: {href}")
         res = self.conn.getresponse()

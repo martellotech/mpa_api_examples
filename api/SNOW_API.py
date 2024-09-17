@@ -5,8 +5,8 @@ import json
 class SNOW_API:
 
     def _basic_auth(self, username, password):
-        token = b64encode(f"{username}:{password}".encode('utf-8')).decode("ascii")
-        return f'Basic {token}'
+        token = b64encode(bytes(username, 'utf-8')+bytes(":", 'utf-8')+bytes(password,'utf-8'))
+        return f'Basic {token.decode('utf-8')}'
 
     def createIncident(self, desc, comments=None):
         payload_object = {"short_description":desc}

@@ -31,8 +31,8 @@ class MPA_API:
         return(self.me)
     
     def _basic_auth(self, username, password):
-        token = b64encode(f"{username}:{password}".encode('utf-8')).decode("ascii")
-        return f'Basic {token}'
+        token = b64encode(bytes(username, 'utf-8')+bytes(":", 'utf-8')+bytes(password,'utf-8'))
+        return f'Basic {token.decode('utf-8')}'
     
     def __init__(self, host, uid, pw) -> None:
         """create a reusable REST API connector
@@ -47,7 +47,7 @@ class MPA_API:
         self.headers = { 'Authorization': self._basic_auth(uid, pw) }  
     
 if __name__ == "__main__":
-    from api.API_Config import API_Config
+    from .API_Config import API_Config
     import json
     mpa = MPA_API(API_Config.MPA_HOST, API_Config.MPA_UID, API_Config.MPA_PW)
     me = mpa.getMe()

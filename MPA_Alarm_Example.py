@@ -9,7 +9,7 @@ import pandas as pd
 from datetime import datetime
 import time
 from bokeh.models.widgets.tables import  StringFormatter
-api = API_Config()
+
 pn.extension('terminal', console_output='disable')
 logger = logging.getLogger('mpa_api')
 logger.setLevel(logging.DEBUG)
@@ -18,10 +18,10 @@ logger.info("Starting...")
 
 pn.extension("tabulator", css_files=["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"])
 
-mpa_alarms = MPA_Alarms(api.MPA_HOST, api.MPA_UID, api.MPA_PW)
+mpa_alarms = MPA_Alarms(API_Config.MPA_HOST, API_Config.MPA_UID, API_Config.MPA_PW)
 me = mpa_alarms.getMe()
 logger.info(f"MPA User:{me}")
-snow = SNOW_API(api.SNOW_HOST, api.SNOW_UID, api.SNOW_PW)
+snow = SNOW_API(API_Config.SNOW_HOST, API_Config.SNOW_UID, API_Config.SNOW_PW)
 
 #ALARM_COLORS = {"CRITICAL":"#f0b9b9", "MAJOR":"#F0d1bd", "MINOR":"#f0e8c2", "WARNING":"#c7edf0", "INDETERMINATE":"#ccdef0", "INFO":"#f7d2f7"}
 def flatten(df):
@@ -48,7 +48,7 @@ def alarms_to_table(alarms):
 
     return(df)
 
-table = alarms_to_table(mpa_alarms.readAlarmList(api.MPA_CONTAINER))
+table = alarms_to_table(mpa_alarms.readAlarmList(API_Config.MPA_CONTAINER))
 show = ['severity', 'text', 
         'device.name', 'device.type', 
         'ticket.status', 'ticket.assignee.name', 'ticket.ticketinfo.number'
@@ -63,10 +63,10 @@ def raise_snow_incident(event):
         return event
     alarm = tabulator.value.iloc[tabulator.selection[0]]
     snow_text = f"{alarm['device.name']} - {alarm['text']}"
-    dashboard = f"https://{api.MPA_HOST}/dashboard/container/?template=device/general&device={alarm['device.GUID']}"
+    dashboard = f"https://{API_Config.MPA_HOST}/dashboard/container/?template=device/general&device={alarm['device.GUID']}"
     snow_comment = f"Navigate to MPA Device [code]<a href=\"{dashboard}\" target=\"_blank\">{alarm['device.name']}</a>[/code]"
     resp = snow.createIncident(snow_text, snow_comment)
-    snow_uri = f"https://{api.SNOW_HOST}/nav_to.do?uri=incident.do?sysparm_query=number={resp['result']['number']}"
+    snow_uri = f"https://{API_Config.SNOW_HOST}/nav_to.do?uri=incident.do?sysparm_query=number={resp['result']['number']}"
     logger.info(f"Created SNOW incident: {snow_text} {resp['result']['number']}")
     mpa_alarms.updateTicket(alarm['href'], resp['result']['number'], snow_uri)
     return event

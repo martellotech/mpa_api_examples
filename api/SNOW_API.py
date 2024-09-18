@@ -1,6 +1,8 @@
 import http.client
 from base64 import b64encode
 import json
+import logging
+logger = logging.getLogger("MPA")
 
 class SNOW_API:
 
@@ -15,6 +17,8 @@ class SNOW_API:
         payload = json.dumps(payload_object)
         self.conn.request("POST", "/api/now/table/incident", payload, self.headers )
         res = self.conn.getresponse()
+        if (res.getcode()!=201):
+            raise Exception(f"SNOW API Failed {res.getcode()}")
         data = json.loads(res.read())
         data['Location'] = res.headers['location']
         return(data)

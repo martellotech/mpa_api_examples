@@ -6,7 +6,7 @@ class password(str):
         return '*' * len(self)
     
 @dataclass(frozen=False)
-class API_Config():
+class _API_Config:
     MPA_HOST:str|None = os.getenv('MPA_HOST') 
     MPA_UID:str|None = os.getenv('MPA_UID') 
     MPA_PW:password|None = password(os.getenv('MPA_PW'))
@@ -19,23 +19,21 @@ class API_Config():
         load_dotenv(self.path)
 
     def save(self):
-        for field in API_Config.__dataclass_fields__:
+        for field in _API_Config.__dataclass_fields__:
             value = getattr(API_Config, field)
             set_key(self.path, key_to_set=field, value_to_set=value)
-        print(f"Saved to {self.path}")
         
     def prompt(self):
-        for field in API_Config.__dataclass_fields__:
+        for field in _API_Config.__dataclass_fields__:
             while True:
-                value = getattr(API_Config, field)
-                setattr(API_Config, field, input(f"{field} ({value}):") or value)
-                if (getattr(API_Config, field)) :
+                value = getattr(_API_Config, field)
+                setattr(_API_Config, field, input(f"{field} ({value}):") or value)
+                if (getattr(_API_Config, field)) :
                     break    
         
-            
+API_Config = _API_Config()
 
 if __name__ == "__main__":
-    a = API_Config()
-    a.prompt()
-    a.save()
+    API_Config.prompt()
+    API_Config.save()
 

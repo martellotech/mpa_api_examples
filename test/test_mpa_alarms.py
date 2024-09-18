@@ -3,7 +3,7 @@ import logging
 from api.MPA_Alarms import MPA_Alarms
 from api.API_Config import API_Config
 
-logger = logging.getLogger("mpa_alarms")
+logger = logging.getLogger("MPA")
 
 class Test_mpa_alarms(unittest.TestCase):  
     def setUp(self):
@@ -11,7 +11,7 @@ class Test_mpa_alarms(unittest.TestCase):
 
     def test_get_userGuid_before_getMe(self):
         guid = self.mpa.userGuid()
-        print(f"User: {guid}")
+        logging.debug(f"User: {guid}")
         self.assertTrue(guid is not None)
 
     def test_readAlarmList(self): 
@@ -46,6 +46,3 @@ class Test_mpa_alarms(unittest.TestCase):
         self.mpa.updateTicket(a, "", "")
         alarm = self.mpa.readAlarm(a)
         self.assertTrue('ticketinfo' not in alarm['ticket'], "Ticket Number Cleared")
- 
-
-   

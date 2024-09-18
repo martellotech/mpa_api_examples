@@ -1,8 +1,13 @@
 import http.client
 from base64 import b64encode
 import json
-
+import logging
+logger = logging.getLogger("MPA")
 class MPA_API:
+    class MPA_API_Exception(Exception):
+        def __init__(self, message, errors=None):            
+            super().__init__(message)
+            self.errors = errors
 
     def userGuid(self):
         """Get User GUID
@@ -20,13 +25,14 @@ class MPA_API:
         """
         self.conn.request("GET", "/central/rest/me", "", self.headers)
         res = self.conn.getresponse()
-        print(f"code: {res.getcode()}")
+        logger.debug(f"code: {res.getcode()}")
         if (res.getcode() == 302):
-            print ('redirect')
-            print(res.getheader('Location'))
+            logger.debug(f"redirect:{res.getheader('Location')}")
             res.read()
             self.conn.request("GET", res.getheader('Location'), "", self.headers)
             res = self.conn.getresponse()
+        if (res.getcode() != 200):
+            raise MPA_API.MPA_API_Exception("getMe Failure.", res.getcode())
         self.me = json.loads(res.read())
         return(self.me)
     
@@ -52,5 +58,5 @@ if __name__ == "__main__":
     mpa = MPA_API(API_Config.MPA_HOST, API_Config.MPA_UID, API_Config.MPA_PW)
     me = mpa.getMe()
     print(json.dumps(me))
- 
+
 

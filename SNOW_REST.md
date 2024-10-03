@@ -16,7 +16,7 @@ Log | Create a log entry in Service Now.
 On a container whose alarms should be forwarded, create an Alert Profile with the filtering parameters you 
 want to use. 
 
-<img src="./docs/SNOW REST/MPA SNOW alert profile.PNG" width=500>
+<img src="./docs/SNOW REST/MPA SNOW alert profile.PNG" width=800>
 
 ## Create a template that puts the parameters you want from MPA into a parsable format.
 This example is kind of "minimal":

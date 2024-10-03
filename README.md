@@ -70,3 +70,5 @@ it will prompt you for each of these items.
 
 - Clicking on the hyperlink in the incident will take you back to the device dashboard.
 
+- This example uses polling on the MPA API, which requires a separate run time environment.  A less flexible approach can be accomplished with Alert Profiles in MPA and [ServiceNow Inbound Email processing](./SNOW_REST.md).
+

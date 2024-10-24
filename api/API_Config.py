@@ -19,8 +19,12 @@ class _API_Config:
         load_dotenv(self.path)
 
     def save(self):
-        for field in _API_Config.__dataclass_fields__:
-            value = getattr(API_Config, field)
+        for field in self.__dataclass_fields__:
+            value = getattr(_API_Config, field)
+            if not os.path.exists(self.path):
+                print("creating .env file")
+                self.path = ".env"
+                open(self.path, "x")             
             set_key(self.path, key_to_set=field, value_to_set=value)
         
     def prompt(self):

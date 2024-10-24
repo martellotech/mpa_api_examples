@@ -7,6 +7,7 @@ class password(str):
     
 @dataclass(frozen=False)
 class _API_Config:
+    _self = None
     MPA_HOST:str|None = os.getenv('MPA_HOST') 
     MPA_UID:str|None = os.getenv('MPA_UID') 
     MPA_PW:password|None = password(os.getenv('MPA_PW'))
@@ -14,6 +15,12 @@ class _API_Config:
     SNOW_HOST:str|None = os.getenv('SNOW_HOST') 
     SNOW_UID:str|None = os.getenv('SNOW_UID') 
     SNOW_PW:password|None = password(os.getenv('SNOW_PW'))
+    
+    def __new__(cls):
+        if cls._self is None:
+            cls._self = super().__new__(cls)
+        return cls._self
+            
     def __init__(self):
         self.path = find_dotenv()
         load_dotenv(self.path)

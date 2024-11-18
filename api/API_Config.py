@@ -14,13 +14,23 @@ class _API_Config:
     SNOW_HOST:str|None = os.getenv('SNOW_HOST') 
     SNOW_UID:str|None = os.getenv('SNOW_UID') 
     SNOW_PW:password|None = password(os.getenv('SNOW_PW'))
+
+    def __new__(cls):
+        if cls._self is None:
+            cls._self = super().__new__(cls)
+        return cls._self
+            
     def __init__(self):
         self.path = find_dotenv()
         load_dotenv(self.path)
 
     def save(self):
-        for field in _API_Config.__dataclass_fields__:
-            value = getattr(API_Config, field)
+        for field in self.__dataclass_fields__:
+            value = getattr(_API_Config, field)
+            if not os.path.exists(self.path):
+                print("creating .env file")
+                self.path = ".env"
+                open(self.path, "x")             
             set_key(self.path, key_to_set=field, value_to_set=value)
         
     def prompt(self):

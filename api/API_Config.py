@@ -16,7 +16,10 @@ class _API_Config:
     SNOW_PW:password|None = password(os.getenv('SNOW_PW'))
     def __init__(self):
         self.path = find_dotenv()
-        load_dotenv(self.path)
+        if self.path == '' :
+            self.path = "../.env"
+        else:
+            load_dotenv(self.path)
 
     def save(self):
         for field in _API_Config.__dataclass_fields__:

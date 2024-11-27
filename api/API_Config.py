@@ -7,6 +7,7 @@ class password(str):
     
 @dataclass(frozen=False)
 class _API_Config:
+    _self=None
     MPA_HOST:str|None = os.getenv('MPA_HOST') 
     MPA_UID:str|None = os.getenv('MPA_UID') 
     MPA_PW:password|None = password(os.getenv('MPA_PW'))

@@ -1,74 +1,63 @@
-# Proof of Concept - MPA Integration with Service Now
-# Overview
-This project provides an example application of the Mitel Performance Analytics API.  The example MPA_TO_SNOW.py uses the MPA rest API to retrieve alarms from MPA, apply rules to them, and create ServiceNow incidents that hyperlinked in both directions for easy navigation.
-# Pre-requisites
-## MPA Development System
-in order to run these examples, you need to have valid credentials for an MPA system, including an MPA container that you can experiment on.  For example:
-- a lab system
-- a staging system (non production)
-- a container with non-production device(s) in it.
-## Development Client Environment
-These examples run in a python environment on the developers computer.  The examples do not include strategies for running similar programs in a persistent production environment.  You need to have python version 3 installed on this environment.
-There is a Visual Studio code project included in the repository.   The easiest way to run the examples is to open the mpa_api_examples folder in VS Code.
+**Sample Project: Use the Mitel Performance Analytics API to Integrate with Service Now**
 
-# Installing - VS Code
-With the pre-requisites installed:
-## Clone the repository
-```
-git clone git@github.com:martellotech/mpa_api_examples.git
-```
-## Open the project in VS Code
-## Create a python virtual environment
-- CTRL-Shift-P - "Python: Create Environment"
-  - choose include "requirements.txt"
-## Create a test MPA environment
-### Create a container called "SNOW Test" or similar.
-<img src=".\docs\TestContainer.PNG">
-In this example the container GUID is 401ff9d6-1c4e-4e2a-8f59-70471e048b7f.   You will need your container GUID to configure the api, below.
+To help you understand the capabilities of the Alarm API, this section walks you through a sample project that integrates Mitel Performance Analytics with ServiceNow. The project uses the REST API to retrieve alarms from MPA and then applies rules that allow you to create ServiceNow incidents using four different methods:
 
-### Create a "Basic IP" device called "SNOW Test Device" or similar.
-<img src="./docs/BasicIPDeviceForTesting.PNG">
-You don't need (or want) a probe configured for this device.
+- Create an incident from an MPA alarm using the Favourites (star) button in the MPA interface.
+- Create a service now incident for specific alarm text.
+- Create an incident for an alarm and assign it to a user from within MPA.
+- Create an incident for each critical alarm that is less than 1 hour old.
 
-## Create your .env file
-In the working directory create a file called ".env".   It needs to include:
-```
-MPA_HOST=<your mpa host system FQDN>
-MPA_UID=<the user id you will use for the API.  You could create a new one like "mpa_api@yourdomain.com", or use an existing account>
-MPA_PW=<the password for this account>
-MPA_CONTAINER=<the container GUID for the container whose alarms you will be mapping>
-SNOW_HOST=<the FQDN for your SericeNow system>
-SNOW_UID=<The user id that will be used to create new incidents.  You could create a new one for "mpa_api@yourdomain.com" or use an existing account>
-SNOW_PW=<the password for this account>
-```
-if you run:
-```
-echo.>.env
-python api/API_Config.py
-```
-it will prompt you for each of these items.
-# Run MPA_TO_SNOW.py
-- choose the file in VS Code, and pick "Run->Start Without Debugging" from the menu.
-- The example includes three rules for creating ServiceNow incidents from MPA Alarms.  They are
- - favorite alarms (star button in the MPA UI)
- - user assigned alarms with no ticket assigned.
- - recent critical alarms (less than 1 hr old)
-## Favorite alarm.
-- On the "No probe configured" alarm press the star button.   within 15s you should see an incident number populated in the alarm list.
-## Create some new alarms
-- Navigate to https://\<MPA_HOST\>/central/rest/devices/\<SNOW Test Device GUID\>/html
-<img src=".\docs\CreateATestAlarm.PNG">
+Hyperlinks are provided in both the MPA device dashboard and the ServiceNow incident for easy navigation between the two applications. 
 
-- Select "Critical" Severity, and type an "TEST CRITICAL" into Text.
-- press create alarm.
-- Change the Source, for example to "testSNOW", type "TEST ASSIGN" into Text, change severity to Major, and press Create Alarm
-- Navigate back to the device dashboard.
-- Press the "Assign to me" button next to the TEST ASSIGN alarm.   You will see your user name added to the assignee field.
-- Within 15s all of the alarms should have SNOW incident hyperlinks.
-- If you click on one of the links it should take you to the created incident:
-<img src=".\docs\SNOWIncident.PNG">
+This sample project is designed to run in a development environment only; do not implement it in a production environment.
 
-- Clicking on the hyperlink in the incident will take you back to the device dashboard.
+**Before you Begin**
 
-- This example uses polling on the MPA API, which requires a separate run time environment.  A less flexible approach can be accomplished with Alert Profiles in MPA and [ServiceNow Inbound Email processing](./SNOW_REST.md).
+This project uses Visual Studio Code with a Python virtual environment. Ensure that the development machine you use for this project has Python version 3 installed. 
 
+You also need to have the following:
+
+- Access to an MPA system in a development environment, such as a lab system or a non-production staging system, with System Administrator privileges.
+- The IP address of a non-production device.
+- Access to  https://github.com/martellotech/mpa\_api\_examples.git
+- Credentials for an MPA account that can be used by the API. You can create an account for the purposes of this example, such as "mpa\_api@yourdomain.com," or use an existing account.
+- Credentials for a ServiceNow account that can be used to create new incidents. You can create an account such as "mpa\_api@yourdomain.com" or use an existing account.
+
+**Configure the API**
+
+1. Create an MPA container that you can use for testing.
+1. From the root level of the container, select **System Administration > License Pool** and copy the Container GUID. You will need the GUID when you configure the API.
+1. Select **System Administration > New Device**.
+1. From the **Device Type** list, select **Basic IP Device**. Complete the following fields and click **Save**:
+   1. ` `Name—Enter a name for your test device.  
+   1. ` `Probe—Ensure this field is set to Disabled (the default setting). This will raise a No Probe Configured alarm that you can use for test purposes. 
+   1. ` `Description—Enter a description, such as “ServiceNow test.” 
+   1. ` `IP Address/FQDN—Enter the IP address of a non-production device.
+1. Open a new** Visual Studio Code** session**.** 
+1. Use the following command to clone the project repository:
+   1. git clone git@github.com:martellotech/mpa\_api\_examples.git
+1. Open the project in your workspace by clicking **File> Open Folder** and selecting the folder where the cloned repository was saved.
+1. Press **CTRL-Shift-P** to create a Python virtual environment. When you are prompted to choose the files to include in the environment, include **requirements.txt**.
+1. Select the Python Interpreter**.** For this project, you can select either Venv or Conda.** 
+1. In the working directory, create a .env file by executing the following commands:
+
+   python api/API\_Config.py
+
+1. When you are prompted, enter the following information:
+- **MPA\_HOST**—The FQDN of your MPA system.
+- **MPA\_UID**—The MPA user ID you will use for the API. 
+- **MPA\_PW**—The password for the MPA account.
+- **MPA\_CONTAINER**—The GUID for the test container.
+- **SNOW\_HOST**—The FQDN of your ServiceNow system.
+- **SNOW\_UID**—The ServiceNow user ID that will be used to create new incidents.
+- **SNOW\_PW**—The password for the ServiceNow account.
+
+1. Select the file named MPA\_TO\_SNOW.py and choose **Run > Start Without Debugging** from the menu.
+
+**Test the Integration**
+
+Complete the followPing steps to test the three methods of creating ServiceNow incidents based on MPA alarms.
+
+1. In the MPA test container, locate the **No Probe Configured** alarm in the Alarms table and click the **Favourite** (star) icon. In approximately 15 seconds, you will see a ServiceNow incident number populated in the table.
+1. Create a probe called “SNOW Probe”.   This probe will raise a “Probe has not yet connected alarm”.   This alarm will be given a SNOW incident with a navigation link back to MPA to download and connect the probe.  This alarm text is in the file “mpa\_to\_snow\_mapping.xlsx”.   Any text in the MPA column that matches an alarm will create a SNOW inicident with the indicated text and comment.
+1. To test assigning a user to a ServiceNow incident from within MPA, create an alarm and asign a user to it.   For example, on the probe created above, configure Basic IP SLA for an address that doesn’t exist on the probe’s network, and set the Basic IP SLA threshold to raise a critical alarm.   When this alarm appears, assign it to a user.   Within 15s you should see a service now incident created for the alarm.

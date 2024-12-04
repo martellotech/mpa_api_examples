@@ -6,6 +6,7 @@ import logging
 from api.API_Config import API_Config 
 from http import HTTPStatus
 from requests.exceptions import HTTPError
+import pandas as pd
 
 logging.basicConfig(format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S')
@@ -36,10 +37,20 @@ def run_forever():
     # Get MPA User Record
     me = mpa.getMe()
     logger.debug(f"MPA User record{json.dumps(me['GUID'])}")
+    mpa_to_snow_mapping = pd.read_excel("./mpa_to_snow_mapping.xlsx")
+    def raise_ticket(alarm, snow_text, snow_comment):
+        logger.info(f"new alarm:{alarm['text']}{alarm['ticket']}")
+        dashboard = f"https://{API_Config.MPA_HOST}/dashboard/container/?template=device/general&device={alarm['device']['GUID']}"
+        logger.debug(f"link to dashboard {dashboard}")
+        resp = snow.createIncident(snow_text, snow_comment)
+        snow_uri = f"https://{API_Config.SNOW_HOST}/nav_to.do?uri=incident.do?sysparm_query=number={resp['result']['number']}"
+        logger.info(f"Created SNOW incident: {snow_text} {resp['result']['number']}")
+        mpa.updateTicket(a, resp['result']['number'], snow_uri, ticket=alarm['ticket'])
     
     try:
         while True:
             alarms = mpa.readAlarmList(API_Config.MPA_CONTAINER)
+            logger.info(f"processing {len(alarms.keys())} alarms from container {API_Config.MPA_CONTAINER}")
             for a in alarms.keys():
                 #logger.debug(alarms[a]['id'], alarms[a]['ticket'].keys())
                 age = round(time.time() * 1000) - alarms[a]['starttime']
@@ -49,23 +60,23 @@ def run_forever():
                 2. Any with the "favorite" (star) button checked (always ticket this kind of alarm)
                 3. Any that have been assigned to a person.
                 '''
-                if (((alarms[a]['severity'] == "CRITICAL")and(age < 60*60*1000)) or 
+                mapped = mpa_to_snow_mapping[mpa_to_snow_mapping['MPA Alarm Text']==alarms[a]['text']]
+                if (mapped.size != 0):
+                    if ('ticketinfo' not in alarms[a]['ticket'] ):
+                        raise_ticket(alarms[a],mapped['SNOW Incident Title'][0], mapped['SNOW Incident Text'][0])
+                elif (((alarms[a]['severity'] == "CRITICAL")and(age < 60*60*1000)) or 
                     (alarms[a]['favorite']) or 
                     (alarms[a]['ticket']['status']=='Assigned')):
                     # if ticketinfo is blank, create a ticket in SNOW
                     if ('ticketinfo' not in alarms[a]['ticket'] ):
-                        logger.info(f"new alarm:{alarms[a]['text']}{alarms[a]['ticket']}")
                         snow_text = f"{alarms[a]['device']['name']} - {alarms[a]['text']}"
                         dashboard = f"https://{API_Config.MPA_HOST}/dashboard/container/?template=device/general&device={alarms[a]['device']['GUID']}"
                         snow_comment = f"Navigate to MPA Device [code]<a href=\"{dashboard}\" target=\"_blank\">{alarms[a]['device']['name']}</a>[/code]"
-                        logger.debug(f"link to dashboard {dashboard}")
-                        resp = snow.createIncident(snow_text, snow_comment)
-                        snow_uri = f"https://{API_Config.SNOW_HOST}/nav_to.do?uri=incident.do?sysparm_query=number={resp['result']['number']}"
-                        logger.info(f"Created SNOW incident: {snow_text} {resp['result']['number']}")
-                        mpa.updateTicket(a, resp['result']['number'], snow_uri, ticket=alarms[a]['ticket'])
+                        raise_ticket(alarms[a], snow_text, snow_comment)
                     else:
                         logger.debug(f"critical alarm with ticketinfo:{alarms[a]['text']} <-> {alarms[a]['ticket']['ticketinfo']['number']}")
             time.sleep(5)
+            
     except HTTPError as e:
         code = e.response.status_code
         if (code in retry_codes):

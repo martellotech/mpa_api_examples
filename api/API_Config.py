@@ -20,10 +20,23 @@ class _API_Config:
         if cls._self is None:
             cls._self = super().__new__(cls)
         return cls._self
-            
+    
+    def _getEnvironment(self, key):
+        val = os.getenv(key)   
+        if (val==None):
+            raise ValueError(f"{key} not set in .env file.  Run api/API_config.py.")
+        return(val)
+    
     def __init__(self):
         self.path = find_dotenv()
         load_dotenv(self.path)
+        MPA_HOST =self._getEnvironment('MPA_HOST') 
+        MPA_UID=self._getEnvironment('MPA_UID') 
+        MPA_PW = password(self._getEnvironment('MPA_PW'))
+        MPA_CONTAINER =self._getEnvironment("MPA_CONTAINER") 
+        SNOW_HOST =self._getEnvironment('SNOW_HOST') 
+        SNOW_UID =self._getEnvironment('SNOW_UID') 
+        SNOW_PW = password(self._getEnvironment('SNOW_PW'))
 
     def save(self):
         for field in self.__dataclass_fields__:

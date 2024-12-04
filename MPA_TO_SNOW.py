@@ -17,8 +17,6 @@ logger = logging.getLogger("MPA")
 logger.setLevel(logging.INFO)
 logger.addHandler(fh)
 
-
-
 # Don't abort if we get these errors:
 retry_codes = [
     HTTPStatus.TOO_MANY_REQUESTS,
